@@ -1,27 +1,38 @@
-# Custom INLAjoint loader - bypassing package installation
-# This sources the INLAjoint functions directly from the source code
+# Enhanced INLAjoint loader
+# First tries to use the installed INLAjoint package, then falls back to source
 
-# Create INLAjoint namespace-like environment
-INLAjoint <- new.env()
+# Check if INLAjoint package is available
+inlajoint_package_available <- FALSE
+tryCatch({
+  library(INLAjoint, warn.conflicts = FALSE, quietly = TRUE)
+  inlajoint_package_available <- TRUE
+  message("Using installed INLAjoint package version ", packageVersion("INLAjoint"))
+}, error = function(e) {
+  message("INLAjoint package not available: ", e$message)
+})
 
-# Function to safely source R files
-safe_source <- function(file_path) {
-  if (file.exists(file_path)) {
-    tryCatch({
-      source(file_path, local = INLAjoint)
-      return(TRUE)
-    }, error = function(e) {
-      message("Failed to source ", file_path, ": ", e$message)
-      return(FALSE)
-    })
+if (!inlajoint_package_available) {
+  # Create INLAjoint namespace-like environment
+  INLAjoint <- new.env()
+  
+  # Function to safely source R files
+  safe_source <- function(file_path) {
+    if (file.exists(file_path)) {
+      tryCatch({
+        source(file_path, local = INLAjoint)
+        return(TRUE)
+      }, error = function(e) {
+        message("Failed to source ", file_path, ": ", e$message)
+        return(FALSE)
+      })
+    }
+    return(FALSE)
   }
-  return(FALSE)
-}
-
-# Load INLAjoint functions from source
-inlajoint_source_dir <- "/srv/shiny-server/INLAjoint-source"
-
-if (dir.exists(inlajoint_source_dir)) {
+  
+  # Load INLAjoint functions from source
+  inlajoint_source_dir <- "/srv/shiny-server/INLAjoint-source"
+  
+  if (dir.exists(inlajoint_source_dir)) {
   message("Loading INLAjoint from source...")
   
   # Source all R files from INLAjoint
@@ -306,10 +317,69 @@ predict.INLAjoint_enhanced <- function(object, newdata = NULL, type = "link", ..
   }
 }
 
-# Export the enhanced joint function
-if (exists("INLAJOINT_SOURCE_AVAILABLE") && INLAJOINT_SOURCE_AVAILABLE) {
-  safe_joint <- INLAjoint$joint_simple
+# Check if INLA is available (for both scenarios)
+inla_available <- FALSE
+tryCatch({
+  if (require(INLA, quietly = TRUE)) {
+    inla_available <- TRUE
+    message("INLA package is available")
+  }
+}, error = function(e) {
+  message("INLA package not available: ", e$message)
+})
+
+# Create enhanced joint function that works with or without INLA
+if (inlajoint_package_available) {
+  # Use the installed package but enhance it
+  joint_enhanced <- function(formLong = NULL, formSurv = NULL, 
+                           dataLong = NULL, dataSurv = NULL, 
+                           id = NULL, timeVar = NULL, family = "gaussian",
+                           basRisk = "rw1", NbasRisk = 20, assoc = NULL,
+                           silentMode = FALSE, dataOnly = FALSE, ...) {
+    
+    if (inla_available) {
+      # Use the real INLAjoint function
+      return(joint(formLong = formLong, formSurv = formSurv,
+                  dataLong = dataLong, dataSurv = dataSurv,
+                  id = id, timeVar = timeVar, family = family,
+                  basRisk = basRisk, NbasRisk = NbasRisk, assoc = assoc,
+                  silentMode = silentMode, dataOnly = dataOnly, ...))
+    } else {
+      # Use enhanced mock function
+      message("Using simplified joint model (INLA not available)")
+      source("/srv/shiny-server/utils/mock_inla.R", local = TRUE)
+      return(mock_joint_model(formLong = formLong, formSurv = formSurv,
+                             dataLong = dataLong, dataSurv = dataSurv,
+                             id = id, timeVar = timeVar, family = family,
+                             basRisk = basRisk, NbasRisk = NbasRisk, assoc = assoc,
+                             silentMode = silentMode, dataOnly = dataOnly, ...))
+    }
+  }
+  
+  # Override the joint function in the global environment
+  assign("joint", joint_enhanced, envir = .GlobalEnv)
+  
+  # Also load the data from the package if available
+  tryCatch({
+    data("LongMS", package = "INLAjoint", envir = .GlobalEnv)
+    data("SurvMS", package = "INLAjoint", envir = .GlobalEnv)
+    data("Longsim", package = "INLAjoint", envir = .GlobalEnv)
+    data("Survsim", package = "INLAjoint", envir = .GlobalEnv)
+  }, error = function(e) {
+    message("Could not load INLAjoint data: ", e$message)
+  })
+  
 } else {
-  # Fallback to previous mock function
-  source("utils/mock_inla.R")
+  # Fallback to source loading if package not available
+  # Export the enhanced joint function
+  if (exists("INLAJOINT_SOURCE_AVAILABLE") && INLAJOINT_SOURCE_AVAILABLE) {
+    safe_joint <- INLAjoint$joint_simple
+    assign("joint", safe_joint, envir = .GlobalEnv)
+  } else {
+    # Final fallback to mock function
+    source("/srv/shiny-server/utils/mock_inla.R", local = TRUE)
+    assign("joint", mock_joint_model, envir = .GlobalEnv)
+  }
 }
+
+message("Enhanced INLAjoint loader completed successfully")

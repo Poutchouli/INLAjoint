@@ -1,0 +1,54 @@
+su: ignoring --preserve-environment, it's mutually exclusive with --login
+
+Attaching package: ‘shinydashboard’
+
+The following object is masked from ‘package:graphics’:
+
+    box
+
+
+Attaching package: ‘DT’
+
+The following objects are masked from ‘package:shiny’:
+
+    dataTableOutput, renderDataTable
+
+Loading required package: ggplot2
+
+Attaching package: ‘plotly’
+
+The following object is masked from ‘package:ggplot2’:
+
+    last_plot
+
+The following object is masked from ‘package:stats’:
+
+    filter
+
+The following object is masked from ‘package:graphics’:
+
+    layout
+
+Package 'INLAjoint' version 25.5.14
+Type 'citation("INLAjoint")' for citing this R package in publications.
+Loading INLAjoint from source...
+INLAjoint source loaded successfully!
+Loading required package: DBI
+
+Attaching package: ‘RMySQL’
+
+The following object is masked from ‘package:RPostgreSQL’:
+
+    dbApply
+
+
+Attaching package: ‘RSQLite’
+
+The following object is masked from ‘package:RMySQL’:
+
+    isIdCurrent
+
+Error in library(readr) : there is no package called ‘readr’
+Calls: runApp ... sourceUTF8 -> eval -> eval -> ..stacktraceon.. -> library
+Execution halted
+
