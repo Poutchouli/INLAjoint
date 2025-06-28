@@ -1,0 +1,3 @@
+inla.surv(time_to_event,event)~sex
+
+y~time+sex+(1+time|id)

@@ -1,0 +1,17 @@
+# Ignore unnecessary files for Docker build
+.git
+.gitignore
+*.md
+README.md
+DOCKER_README.md
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+Thumbs.db
+logs/
+data/
+sample_data/
+*.log
+.env
+vignettes/*.pdf

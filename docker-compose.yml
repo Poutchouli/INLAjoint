@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  inlajoint-app:
+    build: .
+    ports:
+      - "3838:3838"
+    environment:
+      - SHINY_LOG_STDERR=1
+    volumes:
+      - ./data:/srv/shiny-server/data
+      - ./logs:/var/log/shiny-server
+    restart: unless-stopped
+    
+  # Optional PostgreSQL database for testing
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
