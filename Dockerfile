@@ -25,11 +25,15 @@ RUN R -e "install.packages(c('shiny', 'shinydashboard', 'DT', 'plotly', 'RPostgr
 # Install INLA
 RUN R -e "install.packages('INLA', repos=c(getOption('repos'), INLA='https://inla.r-inla-download.org/R/testing'), dep=TRUE)"
 
-# Install the INLAjoint package from local source
-RUN R -e "devtools::install_local('/tmp/INLAjoint', dependencies=TRUE)"
+# Try to install the INLAjoint package from local source
+RUN R -e "tryCatch(devtools::install_local('/tmp/INLAjoint', dependencies=TRUE), error=function(e) cat('INLAjoint installation failed:', e$message, '\n'))"
 
 # Copy Shiny app
 COPY docker-app/ /srv/shiny-server/
+
+# Copy and run INLAjoint source setup script
+COPY docker-app/setup_inlajoint_source.sh /tmp/setup_inlajoint_source.sh
+RUN chmod +x /tmp/setup_inlajoint_source.sh && /tmp/setup_inlajoint_source.sh
 
 # Make sure the app has the right permissions
 RUN chown -R shiny:shiny /srv/shiny-server

@@ -8,9 +8,12 @@ tryCatch({
   library(INLAjoint)
   INLAJOINT_AVAILABLE <- TRUE
 }, error = function(e) {
-  message("INLAjoint not available: ", e$message)
+  message("INLAjoint package not available: ", e$message)
   INLAJOINT_AVAILABLE <- FALSE
 })
+
+# Load enhanced INLAjoint loader (bypasses package installation)
+source("utils/enhanced_inlajoint.R")
 
 # Database connection libraries
 library(RPostgreSQL)
@@ -32,7 +35,7 @@ source("modules/results_display.R")
 source("utils/database_utils.R")
 source("utils/data_utils.R")
 source("utils/general_utils.R")
-source("utils/mock_inla.R")
+# Note: enhanced_inlajoint.R is already sourced above
 
 # Define UI
 ui <- dashboardPage(

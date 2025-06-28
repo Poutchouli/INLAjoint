@@ -1,10 +1,18 @@
 # INLAjoint Web Interface Help
 
-## Overview
+## Welcome to the INLAjoint Web Interface!
 
-This web interface provides an easy-to-use platform for fitting joint models using the INLAjoint R package. Joint models simultaneously analyze longitudinal and time-to-event data, accounting for their correlation.
+This application provides a user-friendly web interface for running joint longitudinal and survival models using the INLAjoint package.
 
-## Getting Started
+### Current Status
+
+This application uses an **enhanced loading system** that can work in multiple modes:
+
+1. **Package Mode**: Uses the formally installed INLAjoint package (if available)
+2. **Source Mode**: Loads INLAjoint functions directly from source code (bypassing package installation)
+3. **Demo Mode**: Uses sophisticated mock functions for demonstration purposes
+
+The app automatically detects which mode is available and uses the best option available.
 
 ### 1. Data Input
 
