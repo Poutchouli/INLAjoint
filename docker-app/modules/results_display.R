@@ -12,10 +12,9 @@ resultsDisplayUI <- function(id) {
   ns <- NS(id)
   
   tagList(
-    conditionalPanel(
-      condition = "output.model_available",
-      fluidRow(
-        column(12,
+    fluidRow(
+      column(12,
+        div(id = ns("results_content"),
           tabsetPanel(
             id = ns("results_tabs"),
             
@@ -112,19 +111,14 @@ resultsDisplayUI <- function(id) {
               )
             )
           )
-        )
-      )
-    ),
-    
-    conditionalPanel(
-      condition = "!output.model_available",
-      fluidRow(
-        column(12,
-          div(class = "text-center",
-            h3("No Model Results Available"),
-            p("Please configure and run a joint model to see results here."),
-            icon("chart-line", class = "fa-5x text-muted")
-          )
+        ),
+        
+        # No results message (will be hidden when model is available)
+        div(id = ns("no_results"),
+          style = "text-align: center; padding: 50px;",
+          h3("No Model Results Available"),
+          p("Please configure and run a joint model to see results here."),
+          icon("chart-line", class = "fa-5x text-muted")
         )
       )
     )
@@ -135,16 +129,12 @@ resultsDisplayUI <- function(id) {
 resultsDisplayServer <- function(id, values) {
   moduleServer(id, function(input, output, session) {
     
-    # Check if model is available
-    output$model_available <- reactive({
-      !is.null(values$model_result)
-    })
-    outputOptions(output, "model_available", suspendWhenHidden = FALSE)
-    
     # Model Summary
     output$model_summary <- renderText({
       if (!is.null(values$model_result)) {
-        capture.output(summary(values$model_result))
+        capture.output(print(values$model_result))
+      } else {
+        "No model results available. Please run a model first."
       }
     })
     
@@ -152,20 +142,23 @@ resultsDisplayServer <- function(id, values) {
     output$fixed_effects_table <- DT::renderDataTable({
       if (!is.null(values$model_result)) {
         tryCatch({
-          fixed_effects <- fixef(values$model_result)
+          fixed_effects <- coef(values$model_result)
           if (is.matrix(fixed_effects) || is.data.frame(fixed_effects)) {
             DT::datatable(fixed_effects, options = list(scrollX = TRUE))
           } else {
-            # Handle case where fixef returns a different structure
+            # Handle case where coef returns a different structure
             df <- data.frame(
+              Parameter = names(fixed_effects),
               Estimate = fixed_effects,
-              Parameter = names(fixed_effects)
+              stringsAsFactors = FALSE
             )
             DT::datatable(df, options = list(scrollX = TRUE))
           }
         }, error = function(e) {
-          DT::datatable(data.frame(Error = paste("Could not extract fixed effects:", e$message)))
+          DT::datatable(data.frame(Message = "Fixed effects will appear here after running a model"))
         })
+      } else {
+        DT::datatable(data.frame(Message = "No model results available"))
       }
     })
     
@@ -190,8 +183,10 @@ resultsDisplayServer <- function(id, values) {
             DT::datatable(random_effects, options = list(scrollX = TRUE))
           }
         }, error = function(e) {
-          DT::datatable(data.frame(Error = paste("Could not extract random effects:", e$message)))
+          DT::datatable(data.frame(Message = "Random effects will appear here after running a model"))
         })
+      } else {
+        DT::datatable(data.frame(Message = "No model results available"))
       }
     })
     
@@ -219,6 +214,12 @@ resultsDisplayServer <- function(id, values) {
           plot_ly() %>% 
             add_text(x = 0.5, y = 0.5, text = paste("Error creating plot:", e$message))
         })
+      } else {
+        plot_ly() %>% 
+          add_text(x = 0.5, y = 0.5, text = "Run a model to see longitudinal trajectories") %>%
+          layout(title = "Longitudinal Plot",
+                xaxis = list(title = ""),
+                yaxis = list(title = ""))
       }
     })
     
@@ -233,6 +234,12 @@ resultsDisplayServer <- function(id, values) {
           plot_ly() %>% 
             add_text(x = 0.5, y = 0.5, text = paste("Error creating survival plot:", e$message))
         })
+      } else {
+        plot_ly() %>% 
+          add_text(x = 0.5, y = 0.5, text = "Run a model to see survival curves") %>%
+          layout(title = "Survival Plot",
+                xaxis = list(title = ""),
+                yaxis = list(title = ""))
       }
     })
     
@@ -252,6 +259,12 @@ resultsDisplayServer <- function(id, values) {
           plot_ly() %>% 
             add_text(x = 0.5, y = 0.5, text = paste("Error creating residuals plot:", e$message))
         })
+      } else {
+        plot_ly() %>% 
+          add_text(x = 0.5, y = 0.5, text = "Run a model to see residual plots") %>%
+          layout(title = "Residuals Plot",
+                xaxis = list(title = ""),
+                yaxis = list(title = ""))
       }
     })
     
@@ -265,6 +278,12 @@ resultsDisplayServer <- function(id, values) {
           plot_ly() %>% 
             add_text(x = 0.5, y = 0.5, text = paste("Error creating random effects plot:", e$message))
         })
+      } else {
+        plot_ly() %>% 
+          add_text(x = 0.5, y = 0.5, text = "Run a model to see random effects") %>%
+          layout(title = "Random Effects Plot",
+                xaxis = list(title = ""),
+                yaxis = list(title = ""))
       }
     })
     
