@@ -48,7 +48,7 @@ The following object is masked from ‘package:RMySQL’:
 
 INLA not available, using mock functions
 
-Listening on http://127.0.0.1:39217
+Listening on http://127.0.0.1:36977
 Warning in data("LongMS", package = "INLAjoint") :
   data set ‘LongMS’ not found
 Warning in data("SurvMS", package = "INLAjoint") :
@@ -60,18 +60,4 @@ Returning the palette you asked for with that many colors
 Warning in RColorBrewer::brewer.pal(max(N, 3L), "Set2") :
   n too large, allowed maximum for palette Set2 is 8
 Returning the palette you asked for with that many colors
-
-Warning in data("LongMS", package = "INLAjoint") :
-  data set ‘LongMS’ not found
-Warning in data("SurvMS", package = "INLAjoint") :
-  data set ‘SurvMS’ not found
-Warning in RColorBrewer::brewer.pal(max(N, 3L), "Set2") :
-  n too large, allowed maximum for palette Set2 is 8
-Returning the palette you asked for with that many colors
-
-Warning in RColorBrewer::brewer.pal(max(N, 3L), "Set2") :
-  n too large, allowed maximum for palette Set2 is 8
-Returning the palette you asked for with that many colors
-
-Terminated
 
