@@ -167,8 +167,7 @@ This ensures the application works reliably in any environment:
 INLAjoint/
 ├── docker-compose.yml           # Service orchestration
 ├── Dockerfile                   # Container definition  
-├── DOCKER_README.md            # Detailed technical docs
-├── README.md                   # This overview file
+├── README.md                   # This comprehensive guide
 ├── docker-app/                 # Shiny application
 │   ├── app.R                   # Main application
 │   ├── modules/                # UI/Server modules
@@ -219,7 +218,8 @@ docker-compose down && docker-compose up
 
 #### "INLA package not available"
 ✅ **Expected behavior**: App automatically uses enhanced source loading  
-✅ **Check logs**: Look for "INLAjoint source loaded successfully!"
+✅ **Check logs**: Look for "INLAjoint source loaded successfully!"  
+✅ **Verify functionality**: Mock results should still be generated
 
 #### "Database connection failed"
 ```bash
@@ -228,13 +228,43 @@ docker-compose logs postgres
 # Default credentials: testuser/testpass/testdb
 ```
 
+#### "Model fitting takes too long"
+1. Use sample data for initial testing
+2. Reduce data size for complex models
+3. Simplify model specification
+4. Check available memory (4GB+ recommended)
+
+#### "File upload fails"
+1. Check file size (default limit: 50MB)
+2. Verify CSV format (UTF-8 encoding recommended)
+3. Ensure proper column headers
+4. Check for special characters in data
+
 ### View Logs
 ```bash
 # Real-time application logs
 docker-compose logs -f inlajoint-app
 
+# Recent logs
+docker-compose logs --tail=100 inlajoint-app
+
 # Check enhanced loader status  
 docker logs inlajoint-inlajoint-app-1 | grep -i "inlajoint"
+
+# Database logs
+docker-compose logs postgres
+```
+
+### Advanced Troubleshooting
+```bash
+# Access container for debugging
+docker exec -it inlajoint-inlajoint-app-1 bash
+
+# Check container resources
+docker stats inlajoint-inlajoint-app-1
+
+# Restart specific service
+docker-compose restart inlajoint-app
 ```
 
 ## 📚 Citations and References
@@ -284,9 +314,9 @@ Based on INLAjoint by Denis Rustand et al.
 - **Documentation**: `?joint` and `vignette("INLAjoint")` in R
 
 ### Docker Web Application
-- **Technical Issues**: Check DOCKER_README.md for detailed troubleshooting
 - **Feature Requests**: Open issues in this repository
 - **Contributions**: Pull requests welcome following coding standards
+- **Troubleshooting**: See detailed sections below
 
 ## 🙏 Acknowledgments
 

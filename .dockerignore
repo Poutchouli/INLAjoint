@@ -3,7 +3,6 @@
 .gitignore
 *.md
 README.md
-DOCKER_README.md
 .Rhistory
 .RData
 .Ruserdata

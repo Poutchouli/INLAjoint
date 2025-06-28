@@ -61,3 +61,5 @@ Warning in RColorBrewer::brewer.pal(max(N, 3L), "Set2") :
   n too large, allowed maximum for palette Set2 is 8
 Returning the palette you asked for with that many colors
 
+Terminated
+
